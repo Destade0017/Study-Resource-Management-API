@@ -6,7 +6,7 @@ const connectDB = async () => {
     console.log(`MONOGODB database connected successfully! Host: ${connectionInstance.connection.host}`);
   } catch (error) {
     console.log("Database connection failed!!!", error);
-    process.exist(1);
+    process.exit(1);
   }
   }
 
