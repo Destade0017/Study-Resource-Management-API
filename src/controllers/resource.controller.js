@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Resource } from "../models/resources.model.js";
 
 //create a Resource
@@ -6,7 +7,7 @@ const createResource = async (req, res) => {
     //get the parameters sent
     const { title, url, description, category, type, completed } = req.body;
 
-    if (!title, !url, !description, !category, !type, !completed) {
+    if (!title || !url || !description || !category || !type || completed === undefined) {
       return res.status(400).json({
         success: false,
         message: "Incomplete Credentials"
@@ -43,10 +44,10 @@ const getOneResource = async (req, res) => {
     //get the id
     const { id } = req.params;
 
-    //find resource
-    const resource = await Resource.findOne(id)
+    //find resource of that particular id
+    const resource = await Resource.findById(id)
 
-    if(!resource){
+    if (!resource) {
       return res.status(404).json({
         success: false,
         message: "Resource not found"
@@ -67,6 +68,67 @@ const getOneResource = async (req, res) => {
   }
 }
 
+//update resource
+const updateResource = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    //check if the id is a valid one
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Resource ID"
+      })
+    }
+
+    //get the updated values
+    const { title, url, description, category, type, completed } = req.body;
+
+    if (!title && !url && !description && !category && !type && completed === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: "Incomplete Credentials",
+      })
+    }
+
+    //find and update
+    const resource = await Resource.findByIdAndUpdate(id,
+      {
+        ...(title && { title }),
+        ...(url && { url }),
+        ...(description && { description }),
+        ...(category && { category }),
+        ...(type && { type }),
+        ...(completed !== undefined && { completed }),
+      },
+      {
+        new: true,
+        runValidators: true
+      }
+    )
+
+    if (!resource) {
+      return res.status(404).json({
+        success: false,
+        message: "Resource not found"
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Resource updated successfully",
+      data: resource
+    })
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    })
+  }
+}
 
 const getAllResource = async (req, res) => {
   try {
@@ -102,7 +164,7 @@ const deleteResource = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Resource successfully deleted!",
-      data: resource
+      data: await Resource.find()
     })
   } catch (error) {
     return res.status(500).json({
@@ -113,4 +175,4 @@ const deleteResource = async (req, res) => {
   }
 }
 
-export { createResource, getAllResource, deleteResource, getOneResource };
+export { createResource, updateResource, getAllResource, deleteResource, getOneResource };

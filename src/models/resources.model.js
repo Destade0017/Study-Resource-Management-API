@@ -28,7 +28,7 @@ const resourceSchema = new Schema({
   },
   completed: {
     type: Boolean,
-    required: false,
+    required: true
   }
 },
 {
