@@ -37,5 +37,22 @@ const createResource = async (req, res) => {
   }
 }
 
+const getAllResource = async (req, res) => {
+  try {
+    const resources = await Resource.find()
+
+    return res.status(200).json({
+      success: true,
+      message: "All resources fetched",
+      data: resources
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+}
 
 export default createResource;
