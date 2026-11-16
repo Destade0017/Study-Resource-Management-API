@@ -132,7 +132,17 @@ const updateResource = async (req, res) => {
 
 const getAllResource = async (req, res) => {
   try {
-    const resources = await Resource.find()
+
+    const { category } = req.query;
+
+    //create a filter object
+    const filter = {}
+
+    if (category) {
+      filter.category = { $regex: new RegExp(`^${category}$`, "i") };
+    }
+
+    const resources = await Resource.find(filter)
 
     return res.status(200).json({
       success: true,
@@ -143,6 +153,7 @@ const getAllResource = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
+      error: error.message
     });
   }
 }
