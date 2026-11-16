@@ -3,7 +3,7 @@ import { createResource, updateResource, getAllResource, deleteResource, getOneR
 
 const router = Router();
 
-router.post("/create", createResource)
+router.post("/", createResource)
 router.get("/", getAllResource)
 router.delete("/:id", deleteResource)
 router.get("/:id", getOneResource)

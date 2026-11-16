@@ -5,18 +5,17 @@ const resourceSchema = new Schema({
     type: String,
     required: true,
     minLength: 5,
-    maxLenght: 50
+    maxlength: 50
   },
   url: {
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
   description: {
     type: String,
     required: true,
     minLength: 10,
-    maxLenght: 350
+    maxlength: 350
   },
   category: {
     type: String,

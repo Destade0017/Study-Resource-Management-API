@@ -44,6 +44,15 @@ const getOneResource = async (req, res) => {
     //get the id
     const { id } = req.params;
 
+    //check if the id is a valid one
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Resource ID"
+      })
+    }
+
     //find resource of that particular id
     const resource = await Resource.findById(id)
 
@@ -85,23 +94,23 @@ const updateResource = async (req, res) => {
     //get the updated values
     const { title, url, description, category, type, completed } = req.body;
 
-    if (!title && !url && !description && !category && !type && completed === undefined) {
+    const updates = {};
+      if (title !== undefined) updates.title = title;
+      if (url !== undefined) updates.url = url;
+      if (description !== undefined) updates.description = description;
+      if (category !== undefined) updates.category = category;
+      if (type !== undefined) updates.type = type;
+      if (completed !== undefined) updates.completed = completed;
+
+    if (Object.keys(updates).length === 0) {
       return res.status(400).json({
         success: false,
-        message: "Incomplete Credentials",
-      })
+        message: "Please provide at least one field to update"
+      });
     }
 
     //find and update
-    const resource = await Resource.findByIdAndUpdate(id,
-      {
-        ...(title && { title }),
-        ...(url && { url }),
-        ...(description && { description }),
-        ...(category && { category }),
-        ...(type && { type }),
-        ...(completed !== undefined && { completed }),
-      },
+    const resource = await Resource.findByIdAndUpdate(id, updates,
       {
         new: true,
         runValidators: true
@@ -133,13 +142,18 @@ const updateResource = async (req, res) => {
 const getAllResource = async (req, res) => {
   try {
 
-    const { category } = req.query;
+    const { category, completed } = req.query;
 
     //create a filter object
     const filter = {}
 
     if (category) {
-      filter.category = { $regex: new RegExp(`^${category}$`, "i") };
+      const safeCategory = category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      filter.category = { $regex: new RegExp(`^${safeCategory}$`, "i") };
+    }
+
+    if(completed !== undefined){
+      filter.completed = completed === "true"
     }
 
     const resources = await Resource.find(filter)
@@ -163,6 +177,15 @@ const deleteResource = async (req, res) => {
   try {
     const { id } = req.params;
 
+    //check if the id is a valid one
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Resource ID"
+      })
+    }
+
     const resource = await Resource.findByIdAndDelete(id);
 
     if (!resource) {
@@ -175,7 +198,11 @@ const deleteResource = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Resource successfully deleted!",
-      data: await Resource.find()
+      data: {
+        id: resource._id,
+        title: resource.title,
+        deletedAt: Date.now()
+      }
     })
   } catch (error) {
     return res.status(500).json({
