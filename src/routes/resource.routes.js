@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { createResource, getAllResource } from "../controllers/resource.controller.js";
+import { createResource, getAllResource, deleteResource } from "../controllers/resource.controller.js";
 
 const router = Router()
 
-router.post("/create",createResource)
+router.post("/create", createResource)
 router.get("/", getAllResource)
+router.delete("/:id", deleteResource)
 
 export default router;

@@ -37,6 +37,37 @@ const createResource = async (req, res) => {
   }
 }
 
+//get one resource
+const getOneResource = async (req, res) => {
+  try {
+    //get the id
+    const { id } = req.params;
+
+    //find resource
+    const resource = await Resource.findOne(id)
+
+    if(!resource){
+      return res.status(404).json({
+        success: false,
+        message: "Resource not found"
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Resource fetched",
+      data: resource
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    })
+  }
+}
+
+
 const getAllResource = async (req, res) => {
   try {
     const resources = await Resource.find()
@@ -54,4 +85,32 @@ const getAllResource = async (req, res) => {
   }
 }
 
-export  { createResource, getAllResource };
+//delete resource
+const deleteResource = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const resource = await Resource.findByIdAndDelete(id);
+
+    if (!resource) {
+      return res.status(404).json({
+        success: false,
+        message: "Resource does not exist"
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Resource successfully deleted!",
+      data: resource
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+}
+
+export { createResource, getAllResource, deleteResource, getOneResource };
