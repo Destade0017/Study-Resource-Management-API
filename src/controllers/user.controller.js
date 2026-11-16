@@ -97,7 +97,7 @@ const getAllUsers = async (req, res) => {
     //get id
     const { id } = req.params;
 
-    const users = await User.find();
+    const users = await User.find().select("-password");
 
     return res.status(200).json({
       success: true,
@@ -113,4 +113,4 @@ const getAllUsers = async (req, res) => {
   }
 }
 
-export  { createUser, loginUser };
+export  { createUser, loginUser, getAllUsers };
